@@ -111,6 +111,7 @@
     src: "{{ item }}"
     dest: "{{ lab_dir }}/services/"
     rsync_opts:
+      - "--include=.env"
       - "--include=docker-compose*.yml"
       - "--include=docker-compose*.yaml"
       - "--include=*/"
