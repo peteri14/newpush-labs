@@ -3,7 +3,7 @@ version: "3.3"
 services:
   sablier:
     container_name: sablier
-    image: sablierapp/sablier:latest
+    image: sablierapp/sablier:${SABLIER_VERSION:-latest}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "sablier", "health"]

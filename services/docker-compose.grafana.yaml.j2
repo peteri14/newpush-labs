@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   grafana:
-    image: grafana/grafana-oss:latest
+    image: grafana/grafana-oss:${GRAFANA_OSS_VERSION:-latest}
     env_file:
       - .env
     environment:
@@ -48,7 +48,7 @@ services:
       - web
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor
+    image: gcr.io/cadvisor/cadvisor:${CADVISOR_VERSION:-latest}
     container_name: cadvisor
     privileged: true
     volumes:
@@ -74,7 +74,7 @@ services:
       - web
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:${NODE_EXPORTER_VERSION:-latest}
     container_name: node-exporter
     volumes:
       - /proc:/host/proc:ro
@@ -90,7 +90,7 @@ services:
       - web 
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:${PROMETHEUS_VERSION:-latest}
     container_name: prometheus
     user: "1000:100"
     volumes:

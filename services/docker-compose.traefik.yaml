@@ -3,7 +3,7 @@ version: "3.3"
 services:
   traefik:
     restart: unless-stopped # this is mine
-    image: "traefik:latest"
+    image: traefik:${TRAEFIK_VERSION:-latest}
     env_file:
       - .env
     container_name: "traefik" 
@@ -31,7 +31,7 @@ services:
 
   # Ingress configured trough traefik/conf.d/whoami.yml
   whoami:
-    image: containous/whoami
+    image: containous/whoami:${WHOAMI_VERSION:-latest}
     container_name: whoami
     labels:
       - sablier.enable=true

@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   mafl:
-    image:   hywax/mafl
+    image: hywax/mafl:${MAFL_VERSION:-latest}
     env_file:
       - .env
     container_name: mafl
@@ -46,7 +46,7 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable"
       - "traefik.enable=true"
-      
+
 networks:
   web:
     external: True

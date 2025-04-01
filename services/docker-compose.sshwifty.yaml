@@ -1,6 +1,6 @@
 services:
   sshwifty:
-    image: niruix/sshwifty:latest
+    image: niruix/sshwifty:${SSHWIFTY_VERSION:-latest}
     container_name: sshwifty
     env_file:
       - /opt/student-lab/services/.env
@@ -33,7 +33,6 @@ services:
     restart: unless-stopped
     networks:
       - web
-    
 
 networks:
   web:
