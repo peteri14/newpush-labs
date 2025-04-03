@@ -84,6 +84,7 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
     # ports:
     #   - "9100:9100"
     networks:
@@ -101,6 +102,7 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
+    restart: unless-stopped
     # TODO: expose web UI
     # ports:
     #   - "9090:9090"
@@ -115,6 +117,7 @@ services:
     volumes:
       - ./loki/local-config.yaml:/etc/loki/local-config.yaml
     command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
     networks:
       - web
 
@@ -126,6 +129,7 @@ services:
       - ./traefik/logs:/var/log/traefik
       - ./promtail:/etc/promtail
     command: -config.file=/etc/promtail/config.yml
+    restart: unless-stopped
     networks:
       - web
 # volumes:
