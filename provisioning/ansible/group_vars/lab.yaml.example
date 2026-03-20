@@ -17,10 +17,14 @@ acme_zerossl_hmac_encoded:
 acme_zerossl_kid: 
 
 traefik_crowdsec_bouncer: true
+shared_key_for_crowdsec_traefik:
+shared_key_for_crowdsec_firewall:
 
-# Required for the CrowdSec plugin for Traefik. 
+# Required for the CrowdSec plugin for Traefik..
 # If not present, bots will receive an HTTP error code instead of a CAPTCHA challenge.
-hcaptcha_site_key: 
+hcaptcha_site_key:.
+# The account key is also required for correct operation
+hcaptcha_account_key:.
 
 # bring your own keys 
 openai_api_key: 

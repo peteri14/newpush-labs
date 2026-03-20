@@ -6,8 +6,8 @@ services:
     environment:
       COLLECTIONS: crowdsecurity/traefik crowdsecurity/linux crowdsecurity/iptables
       CUSTOM_HOSTNAME: crowdsec
-      BOUNCER_KEY_TRAEFIK: 40796d93c2958f9e58345514e67740e5
-      BOUNCER_KEY_FIREWALL: 5b8dfbb73e1b00f157854f318e54fac3
+      BOUNCER_KEY_TRAEFIK: {{ shared_key_for_crowdsec_traefik }}
+      BOUNCER_KEY_FIREWALL: {{ shared_key_for_crowdsec_firewall }}
     volumes:
       - ./crowdsec/profiles.yaml:/etc/crowdsec/profiles.yaml:ro
       - ./crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml:ro

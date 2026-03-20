@@ -6,8 +6,8 @@ lab_dir: /opt/student-lab
 # casdoor settings
 organization_display_name: "PTE-MIK lab"
 organization_url: "https://mik.pte.hu"
-organization_logo: "https://registry.neo.mik.pte.hu:8000/pte.png"
-background_url: "https://registry.neo.mik.pte.hu:8000/background.jpg"
+organization_logo: "https://images.neo.mik.pte.hu:8000/pte.png"
+background_url: "https://images.neo.mik.pte.hu:8000/background.jpg"
 admin_user_password: "hacker"
 
 
@@ -17,10 +17,16 @@ acme_zerossl_hmac_encoded:
 acme_zerossl_kid: 
 
 traefik_crowdsec_bouncer: true
+shared_key_for_crowdsec_traefik:
+shared_key_for_crowdsec_firewall:
 
-# Required for the CrowdSec plugin for Traefik. 
+# Required for the CrowdSec plugin for Traefik.
 # If not present, bots will receive an HTTP error code instead of a CAPTCHA challenge.
 hcaptcha_site_key: 
+# The account key is also required for correct working operation
+hcaptcha_account_key: 
+
+
 
 # bring your own keys 
 openai_api_key: 

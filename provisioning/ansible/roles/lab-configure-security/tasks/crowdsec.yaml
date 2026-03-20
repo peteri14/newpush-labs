@@ -38,8 +38,8 @@
     state: present
 
 - name: Copy crowdsec firewall bouncer configuration
-  ansible.builtin.copy:
-    src: ./files/crowdsec-firewall-bouncer.yaml
+  ansible.builtin.template:
+    src: ./files/crowdsec-firewall-bouncer.yaml.y2
     dest: /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
     owner: root
     group: root

@@ -5,7 +5,6 @@ http:
         bouncer:
           enabled: true
           logLevel: INFO
-          CrowdsecLapiKey: 40796d93c2958f9e58345514e67740e5
           defaultDecisionSeconds: 60
           httpTimeoutSeconds: 10
           crowdsecMode: live
@@ -13,7 +12,7 @@ http:
           crowdsecAppsecHost: crowdsec:7422
           crowdsecAppsecFailureBlock: false
           crowdsecAppsecUnreachableBlock: false
-          crowdsecLapiKey: 40796d93c2958f9e58345514e67740e5
+          crowdsecLapiKey: {{ shared_key_for_crowdsec_traefik }}
           crowdsecLapiHost: crowdsec:8080
           crowdsecLapiScheme: http
           forwardedHeadersTrustedIPs: 
@@ -23,6 +22,7 @@ http:
             - 192.168.1.0/24
           captchaProvider: hcaptcha
           captchaSiteKey: {{ hcaptcha_site_key }}
+          captchaSecretKey: {{ hcaptcha_account_key }}
           captchaHTMLFilePath: /captcha.html
           captchaGracePeriodSeconds: 1800
           banHTMLFilePath: /ban.html

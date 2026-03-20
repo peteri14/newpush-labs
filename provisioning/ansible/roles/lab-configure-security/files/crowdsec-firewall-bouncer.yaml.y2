@@ -8,7 +8,7 @@ log_max_size: 100
 log_max_backups: 3
 log_max_age: 30
 api_url: http://127.0.0.1:9580/
-api_key: 5b8dfbb73e1b00f157854f318e54fac3
+api_key: {{ shared_key_for_crowdsec_firewall }}
 ## TLS Authentication
 # cert_path: /etc/crowdsec/tls/cert.pem
 # key_path: /etc/crowdsec/tls/key.pem
