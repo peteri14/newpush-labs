@@ -18,7 +18,7 @@ http:
           - url: "http://whoami:80"
   routers:
     whoami:
-      rule: PathPrefix(`/whoami`)
+      rule: "Host(`www.{{ lab_external_ip }}.traefik.me`) && PathPrefix(`/whoami`)"
       entryPoints:
         - "https"
       middlewares:
@@ -27,3 +27,4 @@ http:
       priority: 100
       tls:
         certResolver: default
+

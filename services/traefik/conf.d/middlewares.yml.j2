@@ -26,3 +26,15 @@ http:
           captchaHTMLFilePath: /captcha.html
           captchaGracePeriodSeconds: 1800
           banHTMLFilePath: /ban.html
+
+    traefik-forward-auth:
+      forwardAuth:
+        address: http://traefik-forward-auth:4181
+        tls:
+          insecureSkipVerify: true
+
+    traefik-waeb:
+      plugin:
+        traefik-plugin-waeb:
+          root: /var/www/html
+

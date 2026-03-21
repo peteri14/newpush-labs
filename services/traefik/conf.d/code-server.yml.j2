@@ -26,14 +26,14 @@ http:
           - url: "http://lab-code-server:8443"
   routers:
     code-server:
-      rule: PathPrefix(`/labs/code-server`)
+      rule: "Host(`www.{{ lab_external_ip }}.traefik.me`) && PathPrefix(`/labs/code-server`)"
       entryPoints:
         - "https"
       middlewares:
         - sablier-dynamic-code-server@file
         - code-server-strip-prefix@file
         - code-redirect@file
-        - traefik-forward-auth@docker
+        - traefik-forward-auth@file
       service: "code-server"
       priority: 100
       tls:

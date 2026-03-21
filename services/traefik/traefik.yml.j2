@@ -14,16 +14,6 @@ entryPoints:
         - crowdsec@file
 {% endif %}
 
-middlewares:
-  traefik-forward-auth:
-    forwardAuth:
-      address: http://traefik-forward-auth:4181
-      tls:
-        insecureSkipVerify: true
-  traefik-waeb:
-    plugin:
-      traefik-plugin-waeb:
-        root: /var/www/html
 providers:
   providersThrottleDuration: 2s
   docker:
@@ -34,7 +24,7 @@ providers:
   file:
     directory: /etc/traefik/conf.d/
     watch: true
-    
+
 api:
   insecure: true
   dashboard: true
@@ -83,7 +73,7 @@ experimental:
       version: "v1.0.1"
     bouncer:
       moduleName: "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
-      version: "v1.3.1"
+      version: "v1.5.1"
     sablier:
       moduleName: "github.com/acouvreur/sablier"
       version: "v1.8.0"
