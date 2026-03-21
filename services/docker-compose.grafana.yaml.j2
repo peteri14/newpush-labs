@@ -126,6 +126,8 @@ services:
       - ./traefik/logs:/var/log/traefik
       - ./promtail:/etc/promtail
     command: -config.file=/etc/promtail/config.yml
+    labels:
+      - "traefik.enable=false"
     networks:
       - web
 # volumes:

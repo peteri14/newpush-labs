@@ -48,7 +48,9 @@ services:
       - ./mafl/conf.d:/app/config/conf.d
     labels:
       - "com.centurylinklabs.watchtower.enable"
-      - "traefik.enable=true"
+      - "traefik.enable=false"
+    networks:
+      - web
 
 networks:
   web:
