@@ -1,7 +1,7 @@
 
 - name: Set coder access url
   ansible.builtin.set_fact:
-    coder_access_url: "https://coder.{{ lab_external_ip }}.traefik.me"
+    coder_access_url: "https://coder.{{ lab_external_ip }}.lab.neo.mik.pte.hu"
 
 - name: Add DOMAIN variable to .env file if it doesn't exist
   ansible.builtin.lineinfile:

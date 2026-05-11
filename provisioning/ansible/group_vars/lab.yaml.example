@@ -4,10 +4,10 @@ ansible_python_interpreter: /usr/bin/python3
 lab_dir: /opt/student-lab
 
 # casdoor settings
-organization_display_name: "Newpush lab"
-organization_url: "https://newpush.com"
-organization_logo: "https://storage.googleapis.com/static_newpush/np_labs_logo.png"
-background_url: "https://images.prismic.io/newpushcom/d0f96d86-fa05-4756-9f97-773950f93cae_main_new.png?auto=compress,format"
+organization_display_name: "PTE-MIK lab"
+organization_url: "https://mik.pte.hu"
+organization_logo: "https://images.neo.mik.pte.hu:8000/pte.png"
+background_url: "https://images.neo.mik.pte.hu:8000/background.jpg"
 admin_user_password: "hacker"
 
 
@@ -20,11 +20,13 @@ traefik_crowdsec_bouncer: true
 shared_key_for_crowdsec_traefik:
 shared_key_for_crowdsec_firewall:
 
-# Required for the CrowdSec plugin for Traefik..
+# Required for the CrowdSec plugin for Traefik.
 # If not present, bots will receive an HTTP error code instead of a CAPTCHA challenge.
-hcaptcha_site_key:.
-# The account key is also required for correct operation
-hcaptcha_account_key:.
+hcaptcha_site_key: 
+# The account key is also required for correct working operation
+hcaptcha_account_key: 
+
+
 
 # bring your own keys 
 openai_api_key: 
@@ -37,7 +39,7 @@ generic_oauth_application_name: application
 # generic_oauth_client_id: 5e7c01af6d262109e111 
 # generic_oauth_client_secret:  
 
-# if lab_domain left unset then the default will be: <EXTERNAL_IP>.traefik.me
+# if lab_domain left unset then the default will be: <EXTERNAL_IP>.lab.neo.mik.pte.hu
 # lab_domain:
 
 # used for configuring sshwiftly and ssh key, defaults to 1000 userid if empty
