@@ -1,0 +1,56 @@
+services:
+  dockernexus:
+    image: peteri14/dockernexus:0.0.2
+    container_name: dockernexus
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dockernexus/data:/data
+      - /opt/student-lab/services/dockernexus/stacks:/stacks
+      # - /opt/student-lab/services/.env:/opt/student-lab/services/dockge/stacks/.env
+    environment:
+      ADDR: ":8080"
+      DATA_DIR: "/data"
+      ADMIN_USER: "admin"
+      ADMIN_PASSWORD: "admin123"
+      SESSION_COOKIE_NAME: "dockernexus_session"
+      SESSION_TTL: "24h"
+      # Set true only when serving through HTTPS.
+      COOKIE_SECURE: "true"
+      STACKS_DIR: "/stacks"
+      OAUTH2_CLIENT_ID: 8ebba7a18147f49c1440
+      OAUTH2_CLIENT_SECRET: 965d872de329a625f7ab9bc7bbaeb99ebd53385a
+      OAUTH2_AUTHORIZATION_URL: https://auth.193.225.18.219.ai-campus.hu/login/oauth/authorize
+      OAUTH2_ACCESS_TOKEN_URL: https://auth.193.225.18.219.ai-campus.hu/api/login/oauth/access_token
+      OAUTH2_RESOURCE_URL: https://auth.193.225.18.219.ai-campus.hu/api/userinfo
+      OAUTH2_REDIRECT_URL: https://dockernexus.193.225.18.219.ai-campus.hu/api/auth/oauth2/callback
+      OAUTH2_USER_IDENTIFIER: sub
+      OAUTH2_SCOPES: "openid profile email"
+      OAUTH2_AUTH_STYLE: in_params
+    labels:
+      - "com.centurylinklabs.watchtower.enable"
+      - "traefik.enable=true"
+      - "traefik.http.routers.dockernexus.rule=Host(`dockernexus.${DOMAIN}`)"
+      - "traefik.http.routers.dockernexus.entrypoints=https"
+      - "traefik.http.services.dockernexus.loadbalancer.server.port=8080"
+      - "traefik.http.routers.dockernexus.service=dockernexus"
+      - "traefik.http.routers.dockernexus.tls=true"
+      - "traefik.http.routers.dockernexus.tls.certresolver=default"
+      - "traefik.http.routers.dockernexus.middlewares=traefik-forward-auth"
+      - "mafl.enable=true"
+      - "mafl.title=DockerNexus"
+      - "mafl.description=Stack-oriented Docker Manager"
+      - "mafl.tag=docker"
+      - "mafl.group=Docker"
+      - "mafl.link=https://dockernexus.${DOMAIN}"
+      - "mafl.icon.name=simple-icons:docker"
+      - "mafl.icon.wrap=true"
+      - "mafl.icon.color=#007acc"
+      - "mafl.status.enabled=true"
+      - "mafl.status.interval=60"
+    networks:
+      - web
+
+networks:
+  web:
+    external: True

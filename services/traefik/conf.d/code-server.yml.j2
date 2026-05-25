@@ -26,7 +26,7 @@ http:
           - url: "http://lab-code-server:8443"
   routers:
     code-server:
-      rule: "Host(`www.{{ lab_external_ip }}.lab.neo.mik.pte.hu`) && PathPrefix(`/labs/code-server`)"
+      rule: "Host(`www.{{ lab_external_ip }}.ai-campus.hu`) && PathPrefix(`/labs/code-server`)"
       entryPoints:
         - "https"
       middlewares:

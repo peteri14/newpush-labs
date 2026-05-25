@@ -45,13 +45,13 @@ def ip_address(host):
     return host.run("curl -4 https://ifconfig.me").stdout.strip()
 
 def test_auth_url_loads(host, ip_address):
-    url = f"https://auth.{ip_address}.lab.neo.mik.pte.hu"
+    url = f"https://auth.{ip_address}.ai-campus.hu"
     print(f"Testing URL: {url}")
     response = host.run(f"curl -k -s -o /dev/null -w '%{{http_code}}' {url}")
     assert response.stdout == "200"
 
 def test_www_url_loads(host, ip_address):
-    url = f"https://www.{ip_address}.lab.neo.mik.pte.hu"
+    url = f"https://www.{ip_address}.ai-campus.hu"
     print(f"Testing URL: {url}")
     response = host.run(f"curl -k -s -o /dev/null -w '%{{http_code}}' {url}")
     assert response.stdout == "307" # Redirects to auth

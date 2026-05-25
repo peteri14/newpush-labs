@@ -93,6 +93,12 @@ services:
       service: portainer
     depends_on:
       - traefik
+  dockernexus:
+    extends:
+      file: docker-compose.dockernexus.yaml
+      service: dockernexus
+    depends_on:
+      - traefik
   watchtower:
     extends:
       file: docker-compose.watchtower.yaml

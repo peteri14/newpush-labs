@@ -51,7 +51,7 @@
 
 - name: Set lab domain fact
   ansible.builtin.set_fact:
-    lab_domain: "{{ lab_external_ip }}.lab.neo.mik.pte.hu"
+    lab_domain: "{{ lab_external_ip }}.ai-campus.hu"
   when: lab_domain is not defined or lab_domain == ""
 
 - name: Set lab user fact
@@ -184,6 +184,8 @@
       dest: "{{ lab_dir }}/services/docker-compose.traefik.yaml"
     - src: ../../services/docker-compose.watchtower.yaml.j2
       dest: "{{ lab_dir }}/services/docker-compose.watchtower.yaml"
+    - src: ../../services/docker-compose.dockernexus.yaml.j2
+      dest: "{{ lab_dir }}/services/docker-compose.dockernexus.yaml"
 
 
 - name: Render the Jinja2 template for lab-llm-perplexica
@@ -233,12 +235,9 @@
     - "{{ lab_dir }}/services/docker-compose.sshwifty.yaml.j2"
     - "{{ lab_dir }}/services/docker-compose.traefik.yaml.j2"
     - "{{ lab_dir }}/services/docker-compose.watchtower.yaml.j2"
+    - "{{ lab_dir }}/services/docker-compose.dockernexus.yaml.j2"
     - "{{ lab_dir }}/services/dockge/stacks/lab-llm-perplexica/perplexica/config.toml.j2"
     - "{{ lab_dir }}/services/dockge/stacks/lab-llm-lobechat/compose.yml.j2"
     - "{{ lab_dir }}/services/dockge/stacks/lab-llm-skyvern/compose.yaml.j2"
     - "{{ lab_dir }}/services/dockge/stacks/lab-tools-jupyter/compose.yaml.j2"
-
-
-
-
 
