@@ -4,6 +4,15 @@ LAB_HOME="/opt/student-lab"
 SERVICES_DIR="$LAB_HOME/services"
 STACKS_DIR="$SERVICES_DIR/dockge/stacks"
 
+# Industry Standard: Export global environment variables so they are available
+# for Docker Compose interpolation (e.g. ${DOMAIN} in labels).
+if [ -f "$SERVICES_DIR/.env" ]; then
+  # Use 'set -a' to automatically export all variables sourced from the file
+  set -a
+  source "$SERVICES_DIR/.env"
+  set +a
+fi
+
 # Manage lab function which takes two arguments:
 #  Action: Status, Start, Stop, Remove, Update
 #  Stack: core, lab-security-wazuh, lab-security-openvas, etc..
@@ -21,7 +30,7 @@ STACKS_DIR="$SERVICES_DIR/dockge/stacks"
 function manage_lab() {
   local action=$1
   local stack=${2:-core}
-  
+
   local project_name=${stack}
   if [ "$stack" == "core" ]; then
     local project_name="lab-core"
@@ -41,16 +50,16 @@ function manage_lab() {
       docker compose -f $compose_file -p $project_name ps
       ;;
     "start")
-      docker compose -f $LAB_HOME/services/docker-compose.yaml -p $project_name up -d
+      docker compose -f $compose_file -p $project_name up -d
       ;;
     "stop")
-      docker compose -f $LAB_HOME/services/docker-compose.yaml -p $project_name stop
+      docker compose -f $compose_file -p $project_name stop
       ;;
     "restart")
-      docker compose -f $LAB_HOME/services/docker-compose.yaml -p $project_name restart
+      docker compose -f $compose_file -p $project_name restart
       ;;
     "remove")
-      docker compose -f $LAB_HOME/services/docker-compose.yaml -p $project_name down
+      docker compose -f $compose_file -p $project_name down
       ;;
     "recreate")
       docker compose -f $compose_file -p $project_name up -d --force-recreate
@@ -115,12 +124,12 @@ function migrate() {
 }
 
 function info() {
-  source $LAB_HOME/services/.env
+  # source $LAB_HOME/services/.env
   echo "Your lab can be accessed at: https://www.${DOMAIN}"
 }
 
 function health_check() {
-  source $LAB_HOME/services/.env
+  # source $LAB_HOME/services/.env
   echo "Your lab can be accessed at: https://www.${DOMAIN}"
 }
 
