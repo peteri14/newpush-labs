@@ -62,11 +62,3 @@
     state: present
   become: true
   when: ansible_distribution == 'Debian' and ansible_distribution_major_version|int < 13
-
-- name: Update MOTD
-  ansible.builtin.template:
-    src: ../templates/motd.j2
-    dest: /etc/motd
-    mode: '0644'
-    owner: root
-    group: root
