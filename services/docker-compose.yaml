@@ -47,8 +47,6 @@ services:
       service: grafana
     depends_on:
       - traefik
-      - prometheus
-      - loki
   prometheus:
     extends:
       file: docker-compose.grafana.yaml
@@ -61,20 +59,14 @@ services:
     extends:
       file: docker-compose.grafana.yaml
       service: promtail
-    depends_on:
-      - loki
   node-exporter:
     extends:
       file: docker-compose.grafana.yaml
       service: node-exporter
-    depends_on:
-      - prometheus
   cadvisor:
     extends:
       file: docker-compose.grafana.yaml
       service: cadvisor
-    depends_on:
-      - prometheus
   sshwifty:
     extends:
       file: docker-compose.sshwifty.yaml
