@@ -73,6 +73,12 @@ services:
       service: sshwifty
     depends_on:
       - traefik
+  wetty:
+    extends:
+      file: docker-compose.wetty.yaml
+      service: wetty
+    depends_on:
+      - traefik
   dockge:
     extends:
       file: docker-compose.dockge.yaml

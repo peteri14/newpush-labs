@@ -8,7 +8,8 @@ function install_packages() {
   # Update apt package list
   echo "Updating apt package list..."
   sudo apt-get update
-  sudo apt-get install -y apt-transport-https ca-certificates gnupg curl
+  sudo apt-get install -y apt-transport-https ca-certificates gnupg curl openssh-server
+  sudo systemctl enable --now ssh || sudo systemctl enable --now sshd || true
 
   # Install Docker
   echo "Installing Docker..."

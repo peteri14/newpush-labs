@@ -9,7 +9,7 @@
     - lab-configure-casdoor
     - lab-copy-dockers
     - lab-configure-env
-    - lab-utils-tty2web
+    - lab-utils-wetty
     - lab-set-permissions
 
   tasks:

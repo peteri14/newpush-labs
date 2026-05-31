@@ -1,0 +1,13 @@
+---
+- name: Restart ssh for WeTTY
+  ansible.builtin.systemd:
+    name: ssh
+    state: restarted
+  register: wetty_restart_ssh
+  ignore_errors: true
+
+- name: Restart sshd for WeTTY when ssh service is unavailable
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+  when: wetty_restart_ssh is failed

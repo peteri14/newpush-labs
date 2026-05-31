@@ -47,7 +47,13 @@ lab_domain_zone: traefik.me
 # Optional external IP. Required only when lab_domain is unset; otherwise inferred from
 # an IP-based domain such as 1.2.3.4.example.com when possible.
 # If lab_domain is unset and this is blank, it is detected automatically with ifconfig.me.
-# lab_external_ip:
+lab_external_ip:
+
+# WeTTY host terminal access uses a dedicated SSH key generated under
+# {{ lab_dir }}/services/wetty/ssh and authorized for lab_user.
+# The lab user is granted passwordless sudo through /etc/sudoers.d.
+# Set this if the host SSH daemon listens on a non-standard port.
+lab_wetty_ssh_port: 22
 
 # Lab system identity.
 # By default, an existing account/group with lab_uid/lab_gid is reused.

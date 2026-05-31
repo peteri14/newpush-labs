@@ -1,0 +1,66 @@
+services:
+  wetty:
+    image: wettyoss/wetty:${WETTY_VERSION:-latest}
+    container_name: wetty
+    env_file:
+      - {{ lab_dir }}/services/.env
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - "3000"
+      - --ssh-host
+      - host.docker.internal
+      - --ssh-port
+      - "{{ lab_wetty_ssh_port | default(22) }}"
+      - --ssh-user
+      - "{{ lab_user }}"
+      - --ssh-auth
+      - publickey
+      - --ssh-key
+      - /etc/wetty/ssh/id_ed25519
+      - --known-hosts
+      - /dev/null
+      - --ssh-config
+      - /etc/wetty/ssh/config
+      - --force-ssh
+      - --title
+      - Student Lab Terminal
+    # WeTTY listens only inside Docker. Do not add a ports: mapping here;
+    # Traefik is the only intended entry point and applies Casdoor forward-auth.
+    expose:
+      - "3000"
+    volumes:
+      - {{ lab_dir }}/services/wetty/ssh/id_ed25519:/etc/wetty/ssh/id_ed25519:ro
+      - {{ lab_dir }}/services/wetty/ssh/config:/etc/wetty/ssh/config:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      - "com.centurylinklabs.watchtower.enable"
+      - "traefik.enable=true"
+      - "traefik.http.routers.wetty.rule=Host(`wetty.${DOMAIN}`)"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.wetty.entrypoints=https"
+      - "traefik.http.services.wetty.loadbalancer.server.port=3000"
+      - "traefik.http.routers.wetty.service=wetty"
+      - "traefik.http.routers.wetty.tls=true"
+      - "traefik.http.routers.wetty.tls.certresolver=default"
+      - "traefik.http.routers.wetty.middlewares=traefik-forward-auth"
+      - "mafl.enable=true"
+      - "mafl.title=Terminal"
+      - "mafl.description=Web terminal access to the host through WeTTY"
+      - "mafl.tag=docker"
+      - "mafl.group=Cloud"
+      - "mafl.link=https://wetty.${DOMAIN}"
+      - "mafl.icon.name=bi:terminal"
+      - "mafl.icon.wrap=true"
+      - "mafl.icon.color=#4EAA25"
+      - "mafl.status.enabled=true"
+      - "mafl.status.interval=60"
+    restart: unless-stopped
+    networks:
+      - web
+
+networks:
+  web:
+    external: True

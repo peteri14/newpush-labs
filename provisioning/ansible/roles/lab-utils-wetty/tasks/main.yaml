@@ -1,0 +1,145 @@
+---
+- name: Resolve lab identity
+  ansible.builtin.include_role:
+    name: lab-user
+    tasks_from: identity
+
+- name: Install OpenSSH server for WeTTY host terminal access
+  ansible.builtin.package:
+    name:
+      - openssh-server
+      - sudo
+    state: present
+
+- name: Ensure SSH service is enabled and running for WeTTY
+  ansible.builtin.systemd:
+    name: ssh
+    enabled: true
+    state: started
+  register: wetty_ssh_service
+  ignore_errors: true
+
+- name: Ensure SSHD service is enabled and running for WeTTY when ssh service is unavailable
+  ansible.builtin.systemd:
+    name: sshd
+    enabled: true
+    state: started
+  when: wetty_ssh_service is failed
+
+- name: Ensure SSH public key authentication is enabled for WeTTY
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*PubkeyAuthentication\s+'
+    line: 'PubkeyAuthentication yes'
+    validate: 'sshd -t -f %s'
+  notify: Restart ssh for WeTTY
+
+- name: Ensure authorized_keys is enabled for WeTTY
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*AuthorizedKeysFile\s+'
+    line: 'AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2'
+    validate: 'sshd -t -f %s'
+  notify: Restart ssh for WeTTY
+
+- name: Ensure WeTTY SSH key directory exists
+  ansible.builtin.file:
+    path: "{{ lab_dir }}/services/wetty/ssh"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Generate dedicated WeTTY SSH keypair
+  ansible.builtin.command:
+    cmd: "ssh-keygen -t ed25519 -N '' -C 'wetty@{{ ansible_hostname | default('student-lab') }}' -f {{ lab_dir }}/services/wetty/ssh/id_ed25519"
+    creates: "{{ lab_dir }}/services/wetty/ssh/id_ed25519"
+
+- name: Lock down WeTTY private key permissions
+  ansible.builtin.file:
+    path: "{{ lab_dir }}/services/wetty/ssh/id_ed25519"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Lock down WeTTY public key permissions
+  ansible.builtin.file:
+    path: "{{ lab_dir }}/services/wetty/ssh/id_ed25519.pub"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Read WeTTY public key
+  ansible.builtin.slurp:
+    src: "{{ lab_dir }}/services/wetty/ssh/id_ed25519.pub"
+  register: wetty_public_key
+
+- name: Write WeTTY SSH client config for host access
+  ansible.builtin.copy:
+    dest: "{{ lab_dir }}/services/wetty/ssh/config"
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      Host host.docker.internal
+        HostName host.docker.internal
+        Port {{ lab_wetty_ssh_port | default(22) }}
+        User {{ lab_user }}
+        IdentityFile /etc/wetty/ssh/id_ed25519
+        IdentitiesOnly yes
+        StrictHostKeyChecking no
+        UserKnownHostsFile /dev/null
+        LogLevel ERROR
+
+
+- name: Ensure lab user SSH directory exists
+  ansible.builtin.file:
+    path: "{{ (ansible_facts.getent_passwd[lab_user][4] if (ansible_facts.getent_passwd is defined and lab_user in ansible_facts.getent_passwd) else '/home/' + lab_user) }}/.ssh"
+    state: directory
+    owner: "{{ lab_user }}"
+    group: "{{ lab_group }}"
+    mode: '0700'
+
+- name: Allow WeTTY key to log in as lab user
+  ansible.posix.authorized_key:
+    user: "{{ lab_user }}"
+    key: "{{ wetty_public_key.content | b64decode | trim }}"
+    state: present
+    manage_dir: false
+    comment: wetty-host-terminal
+
+- name: Allow lab user passwordless sudo for lab terminal
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/90-{{ lab_user }}-wetty"
+    owner: root
+    group: root
+    mode: '0440'
+    content: |
+      # Managed by Ansible: allow the lab terminal user to administer the lab host.
+      {{ lab_user }} ALL=(ALL) NOPASSWD:ALL
+    validate: 'visudo -cf %s'
+
+- name: Read rendered WeTTY compose security configuration
+  ansible.builtin.slurp:
+    src: "{{ lab_dir }}/services/docker-compose.wetty.yaml"
+  register: wetty_compose_file
+
+- name: Parse rendered WeTTY compose security configuration
+  ansible.builtin.set_fact:
+    wetty_compose_config: "{{ wetty_compose_file.content | b64decode | from_yaml }}"
+
+- name: Assert WeTTY is only reachable through Traefik forward-auth
+  ansible.builtin.assert:
+    that:
+      - wetty_compose_config.services.wetty.ports is not defined or (wetty_compose_config.services.wetty.ports | length) == 0
+      - wetty_compose_config.services.wetty.expose is defined
+      - "'3000' in (wetty_compose_config.services.wetty.expose | map('string') | list)"
+      - "'traefik.enable=true' in wetty_compose_config.services.wetty.labels"
+      - "'traefik.http.routers.wetty.middlewares=traefik-forward-auth' in wetty_compose_config.services.wetty.labels"
+      - "'traefik.docker.network=web' in wetty_compose_config.services.wetty.labels"
+      - wetty_compose_config.services.wetty.networks is defined
+      - "'web' in wetty_compose_config.services.wetty.networks"
+    fail_msg: >-
+      Unsafe WeTTY compose configuration. WeTTY must not publish host ports,
+      must only expose internal port 3000, must be attached to the shared
+      web Docker network, and must use Traefik forward-auth.

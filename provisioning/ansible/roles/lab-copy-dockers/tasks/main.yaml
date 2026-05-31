@@ -160,6 +160,8 @@
       dest: "{{ lab_dir }}/services/docker-compose.portainer.yaml"
     - src: ../../services/docker-compose.sshwifty.yaml.j2
       dest: "{{ lab_dir }}/services/docker-compose.sshwifty.yaml"
+    - src: ../../services/docker-compose.wetty.yaml.j2
+      dest: "{{ lab_dir }}/services/docker-compose.wetty.yaml"
     - src: ../../services/docker-compose.traefik.yaml.j2
       dest: "{{ lab_dir }}/services/docker-compose.traefik.yaml"
     - src: ../../services/docker-compose.watchtower.yaml.j2
@@ -213,6 +215,7 @@
     - "{{ lab_dir }}/services/docker-compose.mafl.yaml.j2"
     - "{{ lab_dir }}/services/docker-compose.portainer.yaml.j2"
     - "{{ lab_dir }}/services/docker-compose.sshwifty.yaml.j2"
+    - "{{ lab_dir }}/services/docker-compose.wetty.yaml.j2"
     - "{{ lab_dir }}/services/docker-compose.traefik.yaml.j2"
     - "{{ lab_dir }}/services/docker-compose.watchtower.yaml.j2"
     - "{{ lab_dir }}/services/docker-compose.dockernexus.yaml.j2"

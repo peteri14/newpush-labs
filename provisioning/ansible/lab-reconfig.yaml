@@ -11,7 +11,7 @@
     - lab-copy-dockers
     - lab-configure-env
     # - lab-configure-security
-    - lab-utils-tty2web
+    - lab-utils-wetty
     - lab-set-permissions
   tasks:
     - name: Get list of currently running Docker Compose projects
