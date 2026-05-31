@@ -46,6 +46,19 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
     networks:
       - web
+    depends_on:
+      prometheus:
+        condition: service_healthy
+        restart: true
+      loki:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:${CADVISOR_VERSION:-latest}
@@ -106,6 +119,17 @@ services:
     #   - "9090:9090"
     networks:
       - web
+    depends_on:
+      cadvisor:
+        condition: service_started
+      node-exporter:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9090/-/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
 
   loki:
     image: grafana/loki:${LOKI_VERSION:-latest}
@@ -117,6 +141,12 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - web
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
 
   promtail:
     image: grafana/promtail:${PROMTAIL_VERSION:-latest}
@@ -130,8 +160,9 @@ services:
       - "traefik.enable=false"
     networks:
       - web
-# volumes:
-#   prometheus-data:
+    depends_on:
+      loki:
+        condition: service_healthy
 
 networks:
   web:
