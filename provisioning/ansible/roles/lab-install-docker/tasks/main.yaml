@@ -56,18 +56,3 @@
   register: docker_network_create
   when: docker_network_web.stdout == ""
   changed_when: docker_network_create.rc == 0
-
-# - name: Install Google Cloud SDK
-#   aansible.builtin.pt_key:
-#     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-#     state: present
-
-# - name: Add Google Cloud SDK repository
-#   ansible.builtin.apt_repository:
-#     repo: "deb https://packages.cloud.google.com/apt cloud-sdk main"
-#     state: present
-
-# - name: Install Google Cloud SDK packages
-#   ansible.builtin.apt:
-#     name: google-cloud-sdk
-#     state: present
