@@ -1,3 +1,9 @@
+---
+- name: Resolve lab identity
+  ansible.builtin.include_role:
+    name: lab-user
+    tasks_from: identity
+
 - name: Create directory for student lab dockerfiles
   ansible.builtin.file:
     path: "{{ lab_dir }}"
@@ -10,27 +16,26 @@
     state: directory
     mode: "0775"
 
-# TODO: User group should be 1000
 - name: Set Ownership on Appdata Directory
   ansible.builtin.file:
     path: /opt/appdata
-    owner: 1000
-    group: 100
+    owner: "{{ lab_uid }}"
+    group: "{{ lab_gid }}"
     recurse: true
 
 - name: Set Ownership on Casdoor DB
   ansible.builtin.file:
     path: "{{ lab_dir }}/services/casdoor"
-    owner: 1000
-    group: 1000
+    owner: "{{ lab_uid }}"
+    group: "{{ lab_gid }}"
     mode: "0777"
     recurse: true
 
 - name: Set Ownership on prometheus directory
   ansible.builtin.file:
     path: "{{ lab_dir }}/services/prometheus"
-    owner: 1000
-    group: 100
+    owner: "{{ lab_uid }}"
+    group: "{{ lab_gid }}"
     mode: "0777"
     recurse: true
 
@@ -38,7 +43,7 @@
 - name: Set Ownership on jupyterlab workspace 
   ansible.builtin.file:
     path: "{{ lab_dir }}/services/dockge/stacks/lab-tools-jupyter/workspace"
-    owner: 1000
-    group: 1000
+    owner: "{{ lab_uid }}"
+    group: "{{ lab_gid }}"
     mode: "0775"
     recurse: true

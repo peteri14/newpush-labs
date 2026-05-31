@@ -40,11 +40,18 @@ generic_oauth_application_name: application
 # if lab_domain left unset then the default will be: <EXTERNAL_IP>.traefik.me
 # lab_domain:
 
-# used for configuring sshwiftly and ssh key, defaults to 1000 userid if empty
+# used for configuring sshwifty and ssh key
 lab_external_ip:
 
-# this user will be created if uid 1000 not exists
+# Lab system identity.
+# By default, an existing account/group with lab_uid/lab_gid is reused.
+# Set lab_user_force or lab_group_force to true only if you want to create/use the named identity even when UID/GID already exists.
+lab_uid: 1000
+lab_gid: 1000
 lab_user: labuser
+lab_group: labuser
+# lab_user_force: false
+# lab_group_force: false
 
 # Default system locale
 locale_encoding: UTF-8

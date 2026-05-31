@@ -17,7 +17,7 @@ services:
       git clone https://github.com/NirDiamant/GenAI_Agents.git /home/{{ lab_user }}/workspace/courses/genai-agents && \
       git clone https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/ /home/{{ lab_user }}/workspace/courses/bitcoin-command-line && \
       git clone https://github.com/LearnPythonWithJupyter/Notebooks.git /home/{{ lab_user }}/workspace/courses/learn-python-with-jupyter && \
-      chown -R 1000:1000 /home/{{ lab_user }}/workspace"
+      chown -R {{ lab_uid }}:{{ lab_gid }} /home/{{ lab_user }}/workspace"
     ]
     networks:
       - web
@@ -38,8 +38,8 @@ services:
       - JUPYTER_PASSWORD=
       - JUPYTER_DISABLE_CHECK_XSRF=1
       - NB_USER={{ lab_user }}
-      - NB_UID=1000
-      - NB_GID=1000
+      - NB_UID={{ lab_uid }}
+      - NB_GID={{ lab_gid }}
       # - NB_UMASK=022
       - CHOWN_HOME=yes
       - GRANT_SUDO=yes

@@ -3,7 +3,7 @@ services:
     image: lracz/traefik-forward-auth:latest
     container_name: traefik-forward-auth
     restart: unless-stopped
-    user: "1000:1000"
+    user: "{{ lab_uid }}:{{ lab_gid }}"
     # ports:
       # - "4181:4181"
     environment:
@@ -37,7 +37,7 @@ services:
     env_file:
       - {{ lab_dir }}/services/.env
     restart: unless-stopped
-    user: "1000:1000"
+    user: "{{ lab_uid }}:{{ lab_gid }}"
     ports:
       - "8980:8000"
     volumes:

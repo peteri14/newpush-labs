@@ -1,0 +1,41 @@
+---
+- name: Set default lab UID and GID
+  ansible.builtin.set_fact:
+    lab_uid: "{{ lab_uid | default(1000) | int }}"
+    lab_gid: "{{ lab_gid | default(1000) | int }}"
+
+- name: Look up user by lab UID
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ lab_uid }}"
+  failed_when: false
+  changed_when: false
+
+- name: Look up group by lab GID
+  ansible.builtin.getent:
+    database: group
+    key: "{{ lab_gid }}"
+  failed_when: false
+  changed_when: false
+
+- name: Resolve lab user from existing UID unless explicitly forced
+  ansible.builtin.set_fact:
+    lab_user: >-
+      {{
+        ansible_facts.getent_passwd.keys() | list | first
+        if ((ansible_facts.getent_passwd is defined) and ((ansible_facts.getent_passwd | length) > 0) and not (lab_user_force | default(false) | bool))
+        else (lab_user | default('labuser', true))
+      }}
+
+- name: Resolve lab group from existing GID unless explicitly forced
+  ansible.builtin.set_fact:
+    lab_group: >-
+      {{
+        ansible_facts.getent_group.keys() | list | first
+        if ((ansible_facts.getent_group is defined) and ((ansible_facts.getent_group | length) > 0) and not (lab_group_force | default(false) | bool))
+        else (lab_group | default(lab_user, true))
+      }}
+
+- name: Show resolved lab identity
+  ansible.builtin.debug:
+    msg: "Resolved lab identity: user={{ lab_user }}, group={{ lab_group }}, uid={{ lab_uid }}, gid={{ lab_gid }}"

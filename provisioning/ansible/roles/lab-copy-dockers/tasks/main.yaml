@@ -1,12 +1,16 @@
-# pre_tasks:
+---
+- name: Resolve lab identity
+  ansible.builtin.include_role:
+    name: lab-user
+    tasks_from: identity
 
 - name: Ensure mafl config directory exists
   ansible.builtin.file:
     path: "{{ lab_dir }}/services/mafl/"
     state: directory
     mode: '0755'
-    owner: 1000
-    group: 50
+    owner: "{{ lab_uid }}"
+    group: "{{ lab_gid }}"
 
 - name: Check if mafl config.yml exists
   ansible.builtin.stat:
@@ -18,8 +22,8 @@
     src: ../../services/mafl/config.yml_template
     dest: "{{ lab_dir }}/services/mafl/config.yml"
     mode: '0644'
-    owner: 1000
-    group: 50
+    owner: "{{ lab_uid }}"
+    group: "{{ lab_gid }}"
   when: not mafl_config_stat.stat.exists
 
 - name: Ensure casdoor directory exists
@@ -27,8 +31,8 @@
     path: "{{ lab_dir }}/services/casdoor"
     state: directory
     mode: '0755'
-    owner: 1000
-    group: 50
+    owner: "{{ lab_uid }}"
+    group: "{{ lab_gid }}"
 
 - name: Get lab external ip
   ansible.builtin.command: "curl -s -4 https://ifconfig.me"
@@ -42,26 +46,14 @@
     lab_external_ip: "{{ cmd_get_lab_external_ip.stdout }}"
   when: lab_external_ip is not defined or lab_external_ip == ""
 
-- name: Get lab user
-  ansible.builtin.shell: "getent passwd 1000 | cut -d':' -f1"
-  register: cmd_get_lab_user
-  changed_when: false
-  failed_when: false
-  when: lab_user is not defined or lab_user == ""
-
 - name: Set lab domain fact
   ansible.builtin.set_fact:
     lab_domain: "{{ lab_external_ip }}.ai-campus.hu"
   when: lab_domain is not defined or lab_domain == ""
 
-- name: Set lab user fact
-  ansible.builtin.set_fact:
-    lab_user: "{{ cmd_get_lab_user.stdout }}"
-  when: lab_user is not defined or lab_user == ""
-
 - name: Debug lab user
   ansible.builtin.debug:
-    msg: "The lab user is {{ lab_user }}"
+    msg: "The lab identity is {{ lab_user }}:{{ lab_group }} ({{ lab_uid }}:{{ lab_gid }})"
 
 - name: Get lab ssh fingerprint
   ansible.builtin.shell: |

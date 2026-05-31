@@ -1,62 +1,19 @@
-- name: Check if a user with uid 1000 exists
-  ansible.builtin.getent:
-    database: passwd
-    key: 1000
-  register: user_check
-  failed_when: false
-
-- name: Check if group with gid 1000 exists
-  ansible.builtin.getent:
-    database: group
-    key: 1000
-  register: group_check
-  failed_when: false
-
-- name: Debug user_check
-  ansible.builtin.debug:
-    var: ansible_facts.getent_passwd
-
-- name: Debug group_check
-  ansible.builtin.debug:
-    var: ansible_facts.getent_group
-
-- name: Set create_user to true if ansible_facts.getent_passwd is not defined
-  ansible.builtin.set_fact:
-    create_user: true
-  when: ansible_facts.getent_passwd is not defined
-
-- name: Set lab_user to labuser if not defined
-  ansible.builtin.set_fact:
-    lab_user: labuser
-  when: lab_user is not defined
-
-- name: Set lab_user to the username if create_user is false or not defined
-  ansible.builtin.set_fact:
-    lab_user: "{{ ansible_facts.getent_passwd.keys() | list | first }}"
-  when: create_user is not defined or not create_user
-
-
-- name: Debug lab_user variable
-  ansible.builtin.debug:
-    var: lab_user
-
-- name: Set lab_group to the group name with gid 1000 or default to lab_user
-  ansible.builtin.set_fact:
-    lab_group: "{{ ansible_facts.getent_group.keys() | list | first if ansible_facts.getent_group is defined else lab_user }}"
+---
+- name: Resolve lab identity
+  ansible.builtin.import_tasks: identity.yaml
 
 - name: Ensure the lab group exists
   ansible.builtin.group:
     name: "{{ lab_group }}"
-    gid: 1000
+    gid: "{{ lab_gid }}"
     state: present
 
 - name: Ensure the lab user exists
   ansible.builtin.user:
     name: "{{ lab_user }}"
-    uid: 1000
+    uid: "{{ lab_uid }}"
     group: "{{ lab_group }}"
     state: present
-
 
 - name: Ensure the user is part of the sudo group
   ansible.builtin.user:

@@ -4,8 +4,8 @@ services:
     image: lscr.io/linuxserver/code-server:latest
     container_name: lab-code-server
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID={{ lab_uid }}
+      - PGID={{ lab_gid }}
       - TZ=Etc/UTC
       - SUDO_PASSWORD=hacker #optional
       - DEFAULT_WORKSPACE=/home/{{ lab_user }}/workspace #optional
