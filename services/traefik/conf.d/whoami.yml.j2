@@ -18,7 +18,7 @@ http:
           - url: "http://whoami:80"
   routers:
     whoami:
-      rule: "Host(`www.{{ lab_external_ip }}.ai-campus.hu`) && PathPrefix(`/whoami`)"
+      rule: "Host(`www.{{ lab_domain }}`) && PathPrefix(`/whoami`)"
       entryPoints:
         - "https"
       middlewares:

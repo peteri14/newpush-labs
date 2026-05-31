@@ -39,11 +39,17 @@ generic_oauth_application_name: application
 # generic_oauth_client_id: 5e7c01af6d262109e111 
 # generic_oauth_client_secret:  
 
-# if lab_domain left unset then the default will be: <EXTERNAL_IP>.ai-campus.hu
+# Base DNS zone used when lab_domain is left unset.
+# Used only when lab_domain is unset. The derived lab_domain will be: <lab_external_ip>.<lab_domain_zone>
+lab_domain_zone: ai-campus.hu
+
+# Optional full domain override. If set, this value wins everywhere.
 # lab_domain:
 
-# used for configuring sshwifty and ssh key
-lab_external_ip:
+# Optional external IP. Required only when lab_domain is unset; otherwise inferred from
+# an IP-based domain such as 1.2.3.4.example.com when possible.
+# If lab_domain is unset and this is blank, it is detected automatically with ifconfig.me.
+# lab_external_ip:
 
 # Lab system identity.
 # By default, an existing account/group with lab_uid/lab_gid is reused.

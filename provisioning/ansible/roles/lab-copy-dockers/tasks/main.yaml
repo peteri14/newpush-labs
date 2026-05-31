@@ -4,6 +4,10 @@
     name: lab-user
     tasks_from: identity
 
+- name: Resolve lab network variables
+  ansible.builtin.include_role:
+    name: lab-resolve-network
+
 - name: Ensure mafl config directory exists
   ansible.builtin.file:
     path: "{{ lab_dir }}/services/mafl/"
@@ -34,22 +38,6 @@
     owner: "{{ lab_uid }}"
     group: "{{ lab_gid }}"
 
-- name: Get lab external ip
-  ansible.builtin.command: "curl -s -4 https://ifconfig.me"
-  register: cmd_get_lab_external_ip
-  changed_when: false
-  failed_when: false
-  when: lab_external_ip is not defined or lab_external_ip == ""
-
-- name: Extract lab external ip
-  ansible.builtin.set_fact:
-    lab_external_ip: "{{ cmd_get_lab_external_ip.stdout }}"
-  when: lab_external_ip is not defined or lab_external_ip == ""
-
-- name: Set lab domain fact
-  ansible.builtin.set_fact:
-    lab_domain: "{{ lab_external_ip }}.ai-campus.hu"
-  when: lab_domain is not defined or lab_domain == ""
 
 - name: Debug lab user
   ansible.builtin.debug:
@@ -69,9 +57,9 @@
     lab_ssh_fingerprint: "{{ cmd_get_lab_ssh_fingerprint.stdout }}"
   when: lab_ssh_fingerprint is not defined or lab_ssh_fingerprint == ""
 
-- name: Debug lab external ip
+- name: Debug lab SSH host
   ansible.builtin.debug:
-    msg: "The lab external IP is {{ lab_external_ip }} with user {{ lab_user }} and fingerprint {{ lab_ssh_fingerprint }}"
+    msg: "The lab SSH host is {{ lab_ssh_host }} with user {{ lab_user }} and fingerprint {{ lab_ssh_fingerprint }}"
 
 - name: Synchronize docker-compose files and their corresponding folders
   ansible.posix.synchronize:

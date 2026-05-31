@@ -70,15 +70,20 @@ function configure_ansible() {
 
     cp provisioning/ansible/group_vars/lab.yaml.example provisioning/ansible/group_vars/lab.yaml
 
-    # Set the lab_external_ip variable by ifconfig.me or already existing EXTERNAL_IP environment variable in the group_vars/lab.yaml file
-    if [ -z "$EXTERNAL_IP" ]; then
-        EXTERNAL_IP=$(curl ifconfig.me -4 --silent)
-    fi
-    sed -i "s/^lab_external_ip:.*/lab_external_ip: $EXTERNAL_IP/" provisioning/ansible/group_vars/lab.yaml
-
-    # Uncomment and set the lab_domain variable in the group_vars/lab.yaml file if DOMAIN environment variable is set
+    # If DOMAIN is set, it wins and no external IP or zone is required.
+    # Otherwise lab_domain is derived as <lab_external_ip>.<lab_domain_zone>.
     if [ -n "$DOMAIN" ]; then
         sed -i "s/^# lab_domain:.*/lab_domain: $DOMAIN/" provisioning/ansible/group_vars/lab.yaml
+    else
+        if [ -z "$EXTERNAL_IP" ]; then
+            EXTERNAL_IP=$(curl ifconfig.me -4 --silent)
+        fi
+        sed -i "s/^lab_external_ip:.*/lab_external_ip: $EXTERNAL_IP/" provisioning/ansible/group_vars/lab.yaml
+
+        # Override the centrally configured domain zone if LAB_DOMAIN_ZONE is set.
+        if [ -n "$LAB_DOMAIN_ZONE" ]; then
+            sed -i "s/^lab_domain_zone:.*/lab_domain_zone: $LAB_DOMAIN_ZONE/" provisioning/ansible/group_vars/lab.yaml
+        fi
     fi
 
     # Set the acme_zerossl_hmac_encoded and acme_zerossl_kid variables in the group_vars/lab.yaml file

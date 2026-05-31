@@ -20,10 +20,10 @@ services:
       STACKS_DIR: "/stacks"
       OAUTH2_CLIENT_ID: 8ebba7a18147f49c1440
       OAUTH2_CLIENT_SECRET: 965d872de329a625f7ab9bc7bbaeb99ebd53385a
-      OAUTH2_AUTHORIZATION_URL: https://auth.193.225.18.219.ai-campus.hu/login/oauth/authorize
-      OAUTH2_ACCESS_TOKEN_URL: https://auth.193.225.18.219.ai-campus.hu/api/login/oauth/access_token
-      OAUTH2_RESOURCE_URL: https://auth.193.225.18.219.ai-campus.hu/api/userinfo
-      OAUTH2_REDIRECT_URL: https://dockernexus.193.225.18.219.ai-campus.hu/api/auth/oauth2/callback
+      OAUTH2_AUTHORIZATION_URL: https://auth.{{ lab_domain }}/login/oauth/authorize
+      OAUTH2_ACCESS_TOKEN_URL: https://auth.{{ lab_domain }}/api/login/oauth/access_token
+      OAUTH2_RESOURCE_URL: https://auth.{{ lab_domain }}/api/userinfo
+      OAUTH2_REDIRECT_URL: https://dockernexus.{{ lab_domain }}/api/auth/oauth2/callback
       OAUTH2_USER_IDENTIFIER: sub
       OAUTH2_SCOPES: "openid profile email"
       OAUTH2_AUTH_STYLE: in_params

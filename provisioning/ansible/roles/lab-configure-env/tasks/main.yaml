@@ -1,3 +1,7 @@
+---
+- name: Resolve lab network variables
+  ansible.builtin.include_role:
+    name: lab-resolve-network
 
 - name: Set coder access url
   ansible.builtin.set_fact:
@@ -11,13 +15,21 @@
     regexp: '^DOMAIN='
     mode: "0644"
 
-- name: Add LAB_IP variable to .env file if it doesn't exist
+- name: Add LAB_IP variable to .env file when an IP is known
   ansible.builtin.lineinfile:
     path: "{{ lab_dir }}/services/.env"
     line: "LAB_IP={{ lab_external_ip }}"
     create: true
     regexp: '^LAB_IP='
     mode: "0644"
+  when: lab_external_ip | default('', true) | string | trim | length > 0
+
+- name: Remove LAB_IP variable from .env file when no IP is known
+  ansible.builtin.lineinfile:
+    path: "{{ lab_dir }}/services/.env"
+    regexp: '^LAB_IP='
+    state: absent
+  when: lab_external_ip | default('', true) | string | trim | length == 0
 
 - name: Add CODER_ACCESS_URL variable to .env file if it doesn't exist
   ansible.builtin.lineinfile:

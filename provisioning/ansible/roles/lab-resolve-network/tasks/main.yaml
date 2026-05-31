@@ -1,0 +1,78 @@
+---
+- name: Normalize configured lab domain
+  ansible.builtin.set_fact:
+    lab_domain: >-
+      {{ lab_domain | string | trim | regex_replace('^https?://', '') | regex_replace('/+$', '') }}
+  when: lab_domain | default('', true) | string | trim | length > 0
+
+- name: Split IP based lab domain when possible
+  ansible.builtin.set_fact:
+    lab_external_ip: >-
+      {{ (lab_domain | string | trim).split('.')[0:4] | join('.') }}
+    lab_domain_zone: >-
+      {{ (lab_domain | string | trim).split('.')[4:] | join('.') }}
+  when:
+    - lab_domain | default('', true) | string | trim | length > 0
+    - lab_external_ip | default('', true) | string | trim | length == 0
+    - lab_domain | string | trim | regex_search('^([0-9]{1,3}\.){4}.+$')
+
+- name: Normalize configured lab domain zone
+  ansible.builtin.set_fact:
+    lab_domain_zone: >-
+      {{ lab_domain_zone | default('', true) | string | trim | regex_replace('^\\.+', '') | regex_replace('\\.+$', '') }}
+  when: lab_domain | default('', true) | string | trim | length == 0
+
+- name: Require lab domain zone when lab domain is unset
+  ansible.builtin.assert:
+    that:
+      - lab_domain_zone | default('', true) | string | trim | length > 0
+    fail_msg: >-
+      lab_domain_zone is not set. Define lab_domain_zone in group_vars/lab.yaml;
+      it is used to derive lab_domain as <lab_external_ip>.<lab_domain_zone> when lab_domain is unset.
+  when: lab_domain | default('', true) | string | trim | length == 0
+
+- name: Get lab external IP when it is needed and not configured
+  ansible.builtin.command: "curl -s -4 https://ifconfig.me"
+  register: cmd_get_lab_external_ip
+  changed_when: false
+  failed_when: false
+  when:
+    - lab_domain | default('', true) | string | trim | length == 0
+    - lab_external_ip | default('', true) | string | trim | length == 0
+
+- name: Resolve lab external IP when lab domain must be derived
+  ansible.builtin.set_fact:
+    lab_external_ip: >-
+      {{ (lab_external_ip | default('', true) | string | trim)
+         if (lab_external_ip | default('', true) | string | trim | length > 0)
+         else (cmd_get_lab_external_ip.stdout | default('', true) | string | trim) }}
+  when: lab_domain | default('', true) | string | trim | length == 0
+
+- name: Require lab external IP when lab domain must be derived
+  ansible.builtin.assert:
+    that:
+      - lab_external_ip | default('', true) | string | trim | length > 0
+    fail_msg: >-
+      lab_external_ip is not set and automatic external IP detection returned an empty value.
+      Set lab_external_ip in group_vars/lab.yaml or set lab_domain directly.
+  when: lab_domain | default('', true) | string | trim | length == 0
+
+- name: Derive lab domain when it is unset
+  ansible.builtin.set_fact:
+    lab_domain: "{{ lab_external_ip | string | trim }}.{{ lab_domain_zone | string | trim }}"
+  when: lab_domain | default('', true) | string | trim | length == 0
+
+- name: Resolve lab SSH host
+  ansible.builtin.set_fact:
+    lab_ssh_host: >-
+      {{ (lab_external_ip | default('', true) | string | trim)
+         if (lab_external_ip | default('', true) | string | trim | length > 0)
+         else (lab_domain | string | trim) }}
+
+- name: Require lab domain
+  ansible.builtin.assert:
+    that:
+      - lab_domain | default('', true) | string | trim | length > 0
+    fail_msg: >-
+      lab_domain could not be resolved. Set lab_domain directly or define lab_domain_zone
+      so it can be derived as <lab_external_ip>.<lab_domain_zone>.
