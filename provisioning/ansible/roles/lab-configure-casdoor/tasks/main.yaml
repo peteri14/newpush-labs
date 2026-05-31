@@ -1,4 +1,5 @@
 
+# client ID and secret for built-in application is always new
 - name: Make OAUTH client ID for casdoor built-in application
   ansible.builtin.command: python3 {{ lab_dir }}/utils/casdoor/make_client_credentials.py --client-id
   register: make_casdoor_builtin_id
@@ -24,6 +25,31 @@
     msg: "The OAUTH client ID {{ generic_oauth_builtin_client_id }} OAUTH Client Secret {{ generic_oauth_builtin_client_secret }}"
 
 
+# client ID and secret for default application may come from .env or it is generated
+- name: Check existing service environment
+  ansible.builtin.stat:
+    path: "{{ lab_dir }}/services/.env"
+  register: service_env_stat
+
+- name: Read existing service environment
+  ansible.builtin.slurp:
+    src: "{{ lab_dir }}/services/.env"
+  register: service_env_slurp
+  when: service_env_stat.stat.exists
+
+- name: Parse existing OAuth credentials from service environment
+  ansible.builtin.set_fact:
+    existing_generic_oauth_client_id: "{{ (service_env_text | regex_search('(?m)^LAB_OAUTH_CLIENT_ID=(.*)$', '\\1') | default([''], true) | first) }}"
+    existing_generic_oauth_client_secret: "{{ (service_env_text | regex_search('(?m)^LAB_OAUTH_CLIENT_SECRET=(.*)$', '\\1') | default([''], true) | first) }}"
+  vars:
+    service_env_text: "{{ service_env_slurp.content | b64decode }}"
+  when: service_env_stat.stat.exists
+
+- name: Reuse existing OAuth credentials from service environment
+  ansible.builtin.set_fact:
+    generic_oauth_client_id: "{{ generic_oauth_client_id | default(existing_generic_oauth_client_id, true) }}"
+    generic_oauth_client_secret: "{{ generic_oauth_client_secret | default(existing_generic_oauth_client_secret, true) }}"
+  when: service_env_stat.stat.exists
 
 - name: Make OAUTH client ID for casdoor default application
   ansible.builtin.command: python3 {{ lab_dir }}/utils/casdoor/make_client_credentials.py --client-id
@@ -53,4 +79,12 @@
   ansible.builtin.debug:
     msg: "The OAUTH client ID {{ generic_oauth_client_id }} OAUTH Client Secret {{ generic_oauth_client_secret }}"
 
+- name: Validate OAuth credentials are available for later roles
+  ansible.builtin.assert:
+    that:
+      - generic_oauth_client_id is defined
+      - generic_oauth_client_id | string | length > 0
+      - generic_oauth_client_secret is defined
+      - generic_oauth_client_secret | string | length > 0
+    fail_msg: "Casdoor OAuth credentials could not be resolved."
 
