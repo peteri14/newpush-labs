@@ -55,7 +55,7 @@ lab_external_ip:
 # {{ lab_dir }}/services/wetty/ssh and authorized for lab_user.
 # The lab user is granted passwordless sudo through /etc/sudoers.d.
 # Set this if the host SSH daemon listens on a non-standard port.
-lab_wetty_ssh_port: 22
+lab_wetty_ssh_port: 45522
 
 # Lab system identity.
 # By default, an existing account/group with lab_uid/lab_gid is reused.

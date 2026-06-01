@@ -133,7 +133,7 @@
     that:
       - wetty_compose_config.services.wetty.ports is not defined or (wetty_compose_config.services.wetty.ports | length) == 0
       - wetty_compose_config.services.wetty.expose is defined
-      - "'3000' in (wetty_compose_config.services.wetty.expose | map('string') | list)"
+      - "'3001' in (wetty_compose_config.services.wetty.expose | map('string') | list)"
       - "'traefik.enable=true' in wetty_compose_config.services.wetty.labels"
       - "'traefik.http.routers.wetty.middlewares=traefik-forward-auth' in wetty_compose_config.services.wetty.labels"
       - "'traefik.docker.network=web' in wetty_compose_config.services.wetty.labels"
@@ -141,5 +141,5 @@
       - "'web' in wetty_compose_config.services.wetty.networks"
     fail_msg: >-
       Unsafe WeTTY compose configuration. WeTTY must not publish host ports,
-      must only expose internal port 3000, must be attached to the shared
+      must only expose internal port 3001, must be attached to the shared
       web Docker network, and must use Traefik forward-auth.
