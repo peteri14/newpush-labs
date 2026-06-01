@@ -26,6 +26,9 @@
     state: started
   when: wetty_ssh_service is failed
 
+- name: Resolve SSH port for WeTTY host access
+  ansible.builtin.include_tasks: resolve-ssh-port.yaml
+
 - name: Ensure SSH public key authentication is enabled for WeTTY
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
@@ -83,7 +86,7 @@
     content: |
       Host host.docker.internal
         HostName host.docker.internal
-        Port {{ lab_wetty_ssh_port | default(22) }}
+        Port {{ lab_wetty_ssh_port_effective }}
         User {{ lab_user }}
         IdentityFile /etc/wetty/ssh/id_ed25519
         IdentitiesOnly yes

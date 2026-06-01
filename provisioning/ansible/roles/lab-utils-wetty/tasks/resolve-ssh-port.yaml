@@ -1,0 +1,33 @@
+---
+- name: Detect SSH daemon port for WeTTY when no explicit override is set
+  ansible.builtin.shell: |
+    set -o pipefail
+    if command -v sshd >/dev/null 2>&1; then
+      sshd -T 2>/dev/null | awk 'tolower($1) == "port" { print $2; exit }'
+    fi
+  args:
+    executable: /bin/bash
+  register: wetty_sshd_effective_port
+  changed_when: false
+  failed_when: false
+  when: lab_wetty_ssh_port is not defined or (lab_wetty_ssh_port | string | trim) == ""
+
+- name: Resolve SSH port for WeTTY host access
+  ansible.builtin.set_fact:
+    lab_wetty_ssh_port_effective: >-
+      {{
+        (
+          (lab_wetty_ssh_port | default(None))
+          or (ansible_port | default(None))
+          or (ansible_ssh_port | default(None))
+          or (wetty_sshd_effective_port.stdout | default(None))
+          or 22
+        ) | int
+      }}
+
+- name: Validate resolved SSH port for WeTTY host access
+  ansible.builtin.assert:
+    that:
+      - lab_wetty_ssh_port_effective | int >= 1
+      - lab_wetty_ssh_port_effective | int <= 65535
+    fail_msg: "Resolved invalid WeTTY SSH port: {{ lab_wetty_ssh_port_effective }}"

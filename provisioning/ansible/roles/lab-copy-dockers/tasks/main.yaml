@@ -8,6 +8,11 @@
   ansible.builtin.include_role:
     name: lab-resolve-network
 
+- name: Resolve SSH port for WeTTY templates
+  ansible.builtin.include_role:
+    name: lab-utils-wetty
+    tasks_from: resolve-ssh-port
+
 - name: Ensure mafl config directory exists
   ansible.builtin.file:
     path: "{{ lab_dir }}/services/mafl/"
