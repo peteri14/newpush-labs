@@ -19,7 +19,7 @@ services:
       COOKIE_SECURE: "true"
       STACKS_DIR: "/stacks"
       OAUTH2_CLIENT_ID: {{ generic_oauth_client_id }}
-      OAUTH2_CLIENT_SECRET: {{ generic_oauth_client_id }}
+      OAUTH2_CLIENT_SECRET: {{ generic_oauth_client_secret }}
       OAUTH2_AUTHORIZATION_URL: https://auth.{{ lab_domain }}/login/oauth/authorize
       OAUTH2_ACCESS_TOKEN_URL: https://auth.{{ lab_domain }}/api/login/oauth/access_token
       OAUTH2_RESOURCE_URL: https://auth.{{ lab_domain }}/api/userinfo
