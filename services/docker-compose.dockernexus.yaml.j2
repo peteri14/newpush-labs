@@ -12,14 +12,14 @@ services:
       ADDR: ":8080"
       DATA_DIR: "/data"
       ADMIN_USER: "admin"
-      ADMIN_PASSWORD: "admin123"
+      ADMIN_PASSWORD: {{ admin_user_password }}
       SESSION_COOKIE_NAME: "dockernexus_session"
       SESSION_TTL: "24h"
       # Set true only when serving through HTTPS.
       COOKIE_SECURE: "true"
       STACKS_DIR: "/stacks"
-      OAUTH2_CLIENT_ID: 8ebba7a18147f49c1440
-      OAUTH2_CLIENT_SECRET: 965d872de329a625f7ab9bc7bbaeb99ebd53385a
+      OAUTH2_CLIENT_ID: {{ generic_oauth_client_id }}
+      OAUTH2_CLIENT_SECRET: {{ generic_oauth_client_id }}
       OAUTH2_AUTHORIZATION_URL: https://auth.{{ lab_domain }}/login/oauth/authorize
       OAUTH2_ACCESS_TOKEN_URL: https://auth.{{ lab_domain }}/api/login/oauth/access_token
       OAUTH2_RESOURCE_URL: https://auth.{{ lab_domain }}/api/userinfo

@@ -17,8 +17,8 @@ services:
       - SECRET=${LAB_FORWARD_AUTH_SECRET:-something-random}
       - INSECURE_COOKIE=true # Example assumes no https, do not use in production
       - COOKIE_DOMAIN=${DOMAIN}
-      - COOKIE_NAME=_labs_auth
-      - CSRF_COOKIE_NAME=_labs_csrf
+#      - COOKIE_NAME=_labs_auth
+#      - CSRF_COOKIE_NAME=_labs_csrf
     labels:
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://traefik-forward-auth:4181"
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User"

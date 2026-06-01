@@ -41,7 +41,7 @@ services:
       - "traefik.http.routers.wetty.rule=Host(`wetty.${DOMAIN}`)"
       - "traefik.docker.network=web"
       - "traefik.http.routers.wetty.entrypoints=https"
-      - "traefik.http.services.wetty.loadbalancer.server.port=3000"
+      - "traefik.http.services.wetty.loadbalancer.server.port=3001"
       - "traefik.http.routers.wetty.service=wetty"
       - "traefik.http.routers.wetty.tls=true"
       - "traefik.http.routers.wetty.tls.certresolver=default"
