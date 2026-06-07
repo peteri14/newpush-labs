@@ -1,0 +1,74 @@
+services:
+  jupyter-content:
+    container_name: jupyter-content
+    image: alpine:latest
+    volumes:
+      - /home/admin/workspace:/home/admin/workspace
+    command: [
+      "sh", 
+      "-c",
+      "apk add --no-cache git && \
+      git clone https://github.com/anthropics/courses.git /home/admin/workspace/courses/anthropics && \
+      git clone https://github.com/huggingface/smolagents.git /home/admin/workspace/courses/smolagents && \
+      git clone https://github.com/pjirsa/langchain-quickstart /home/admin/workspace/courses/langchain && \
+      git clone https://github.com/alexfazio/crewAI-quickstart.git /home/admin/workspace/courses/crewai && \
+      git clone https://github.com/AgentOps-AI/agentops.git /home/admin/workspace/courses/agentops && \
+      git clone https://github.com/openai/swarm.git /home/admin/workspace/courses/openai-swarm && \
+      git clone https://github.com/NirDiamant/GenAI_Agents.git /home/admin/workspace/courses/genai-agents && \
+      git clone https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/ /home/admin/workspace/courses/bitcoin-command-line && \
+      git clone https://github.com/LearnPythonWithJupyter/Notebooks.git /home/admin/workspace/courses/learn-python-with-jupyter && \
+      chown -R 1000:1000 /home/admin/workspace"
+    ]
+    networks:
+      - web
+  jupyter:
+    user: root
+    image: quay.io/jupyter/base-notebook:latest
+    container_name: jupyter
+    restart: unless-stopped
+    privileged: true
+    working_dir: 
+      /home/admin/workspace
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/admin/workspace:/home/admin/workspace
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=
+      - JUPYTER_PASSWORD=
+      - JUPYTER_DISABLE_CHECK_XSRF=1
+      - NB_USER=admin
+      - NB_UID=1000
+      - NB_GID=1000
+      # - NB_UMASK=022
+      - CHOWN_HOME=yes
+      - GRANT_SUDO=yes
+      
+    command: ["start-notebook.py", "--IdentityProvider.token=''"]
+    labels:
+      - "com.centurylinklabs.watchtower.enable"
+      - "traefik.enable=true"
+      - "traefik.http.routers.jupyter.rule=Host(`jupyter.${DOMAIN}`)"
+      - "traefik.http.routers.jupyter.entrypoints=https"
+      - "traefik.http.services.jupyter.loadbalancer.server.port=8888"
+      - "traefik.http.routers.jupyter.service=jupyter"
+      - "traefik.http.routers.jupyter.tls=true"
+      - "traefik.http.routers.jupyter.tls.certresolver=default"
+      - "traefik.http.routers.jupyter.middlewares=traefik-forward-auth"
+      - "mafl.enable=true"
+      - "mafl.title=JupyterLab"
+      - "mafl.description=The latest web-based interactive development environment for notebooks, code, and data."
+      - "mafl.tag=development"
+      - "mafl.group=Development"
+      - "mafl.link=https://jupyter.${DOMAIN}"
+      - "mafl.icon.name=simple-icons:jupyter"
+      - "mafl.icon.wrap=true"
+      - "mafl.icon.color=#F37626"
+      - "mafl.status.enabled=true"
+      - "mafl.status.interval=60"
+    networks:
+      - web
+
+networks:
+  web:
+    external: True

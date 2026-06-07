@@ -1,0 +1,119 @@
+services:
+  llm-langflow-setup:
+    container_name: llm-langflow-content
+    image: alpine:latest
+    volumes:
+      - /home/admin/langflow:/home/admin/langflow
+    command: [
+      "sh",
+      "-c",
+      "chown -R 1000:1000 /home/admin/langflow"
+    ]
+    networks:
+      - database
+
+  llm-langflow:
+    image: langflowai/langflow:latest # or another version tag on https://hub.docker.com/r/langflowai/langflow
+    container_name: llm-langflow
+    env_file:
+      - ./.env
+    pull_policy: always               # set to 'always' when using 'latest' image
+    # ports:
+    #   - "7860:7860"
+    depends_on:
+      llm-langflow-setup:
+        condition: service_completed_successfully
+      llm-langflow-postgres:
+        condition: service_healthy
+    environment:   # https://docs.langflow.org/environment-variables
+      - LANGFLOW_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@llm-langflow-postgres:5432/${POSTGRES_DB}
+      - LANGFLOW_CONFIG_DIR=/app/data
+      - LANGFLOW_SAVE_DB_IN_CONFIG_DIR=true
+      - DO_NOT_TRACK=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.langflow.rule=Host(`langflow.${DOMAIN}`)"
+      - "traefik.http.routers.langflow.entrypoints=https"
+      - "traefik.http.routers.langflow.tls=true"
+      - "traefik.http.routers.langflow.tls.certresolver=default"
+      - "traefik.http.routers.langflow.middlewares=traefik-forward-auth"
+      - "traefik.http.services.langflow.loadbalancer.server.port=7860"
+      - "mafl.enable=true"
+      - "mafl.title=Langflow"
+      - "mafl.group=Artificial Intelligence"
+      - "mafl.description=Langflow"
+      - "mafl.link=https://langflow.${DOMAIN}"
+      - "mafl.icon.url=https://avatars.githubusercontent.com/u/85702467"
+      - "mafl.icon.wrap=true"
+      - "mafl.icon.color=#ffffff"
+      - "mafl.status.enabled=true"
+      - "mafl.status.interval=60"
+    volumes:
+      - /home/admin/langflow:/app/data
+    networks:
+      - web
+      - database
+
+
+  llm-langflow-postgres:
+    image: postgres:16
+    container_name: llm-langflow-postgres
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    # ports:
+    #   - "5432:5432"
+    volumes:
+      - llm-langflow-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - database
+
+  llm-langflow-chroma:
+    image: chromadb/chroma
+    container_name: llm-langflow-chroma
+    environment:
+      - ANONYMIZED_TELEMETRY=False
+      - IS_PERSISTENT=True
+      - ALLOW_RESET=True
+    #  - CHROMA_API_IMPL=chromadb.api.segment.SegmentAPI
+    restart: unless-stopped
+    # ports:
+    #   - "8000:8000"
+    depends_on:
+      llm-langflow-setup:
+        condition: service_completed_successfully
+    volumes:
+      - /home/admin/langflow:/data
+    healthcheck:
+      # There is no curl or wget in the image, so we need a special command to check the health
+      # bash can access the TCP ports: https://github.com/dart-lang/dart-docker/issues/58#issuecomment-2675043993
+      test: [ "CMD-SHELL", "/bin/bash -c \"exec 3<>/dev/tcp/127.0.0.1/8000;echo -e \\\"GET /api/v2/heartbeat HTTP/1.1\r\nhost: localhost:8000\r\nConnection: close\r\n\r\n\\\" >&3;grep -q 'nanosecond heartbeat' <&3\"" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - database
+
+volumes:
+  llm-langflow-postgres:
+  # llm-langflow-data:
+  # llm-langflow-chroma:
+    driver: local
+
+networks:
+  web:
+    external: True
+  database:
+    driver: bridge
