@@ -33,11 +33,11 @@ services:
       status:
         enabled: false
   Docker:
-    - title: Portainer
+    - title: DockerNexus
       description: Docker container management
-      link: 'https://portainer.${DOMAIN}'
+      link: 'https://dockernexus.${DOMAIN}'
       icon:
-        name: devicon:portainer
+        name: simple-icons:docker
         wrap: true
       status:
         enabled: true
