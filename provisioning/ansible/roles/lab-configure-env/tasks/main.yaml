@@ -109,3 +109,33 @@
     - { line: "ANTHROPIC_ENABLED=1", regexp: '^ANTHROPIC_ENABLED=' }
   when: anthropic_api_key is defined and anthropic_api_key is not none and anthropic_api_key | string | length > 0
 
+- name: Find stack directories
+  ansible.builtin.find:
+    paths: "{{ lab_dir }}/services/dockernexus/stacks"
+    file_type: directory
+    recurse: false
+  register: dockernexus_stack_dirs
+
+- name: Merge global .env with stack .env.local by appending stack overrides
+  ansible.builtin.shell: |
+    set -eu
+
+    global_env="{{ lab_dir }}/services/.env"
+    stack_env="{{ item.path }}/.env.local"
+    merged_env="{{ item.path }}/.env"
+
+    {
+      cat "$global_env"
+      if [ -f "$stack_env" ]; then
+        printf '\n'
+        cat "$stack_env"
+      fi
+    } > "$merged_env"
+
+    chmod 0600 "$merged_env"
+  args:
+    executable: /bin/bash
+  loop: "{{ dockernexus_stack_dirs.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+

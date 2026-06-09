@@ -87,6 +87,7 @@
     - "casdoor"
     - "code-server"
     - "crowdsec"
+    - "dockernexus"
     - "dockge"
     - "grafana"
     - "loki"
